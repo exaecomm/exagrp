@@ -330,15 +330,11 @@
 		<div class="col-lg-6 col-sm-7 wow fadeInLeft">
 			<div class="contact-info-box address clearfix">
 				<h3><i class="icon-map-marker"></i> Address:</h3>
-				<span>EXA GROUP Global HQ<br>123 International Trade Avenue<br>New York, NY, 10001, USA</span>
-			</div>
-			<div class="contact-info-box phone clearfix">
-				<h3><i class="fa-phone"></i> Phone:</h3>
-				<span>+1 (800) 555-EXA1</span>
+				<span>EXA GROUP LLC<br>1309 Coffeen Avenue STE 1200<br>Sheridan, Wyoming 82801</span>
 			</div>
 			<div class="contact-info-box email clearfix">
 				<h3><i class="fa-envelope"></i> Email:</h3>
-				<span>support@exagroup.com</span>
+				<span>contact@exagrp.com</span>
 			</div>
 			<div class="contact-info-box hours clearfix">
 				<h3><i class="fa-clock-o"></i> Business Hours:</h3>
@@ -361,26 +357,35 @@
 			<div class="form">
 				<div id="sendmessage">Your message has been sent. Thank you!</div>
 				<div id="errormessage"></div>
-				<form action="" method="post" role="form" class="contactForm">
-					<div class="form-group">
-						<input type="text" name="name" class="form-control input-text" id="name" placeholder="Your Name" data-rule="minlen:4" data-msg="Please enter at least 4 characters" />
-						<div class="validation"></div>
-					</div>
-					<div class="form-group">
-						<input type="email" class="form-control input-text" name="email" id="email" placeholder="Your Email" data-rule="email" data-msg="Please enter a valid email" />
-						<div class="validation"></div>
-					</div>
-					<div class="form-group">
-						<input type="text" class="form-control input-text" name="subject" id="subject" placeholder="Subject" data-rule="minlen:8" data-msg="Please enter at least 8 characters for the subject" />
-						<div class="validation"></div>
-					</div>
-					<div class="form-group">
-						<textarea class="form-control input-text text-area" name="message" rows="5" data-rule="required" data-msg="Please write something for us" placeholder="Message"></textarea>
-						<div class="validation"></div>
-					</div>
-					<div class="text-center"><button type="submit" class="input-btn">Send Message</button></div>
-				</form>
-			</div>
+				<form action="https://formspree.io/f/mwpqzgbz" method="POST" role="form" class="contactForm">
+                    <!-- Honeypot to reduce spam -->
+                    <input type="text" name="website" style="display:none" tabindex="-1" autocomplete="off">
+
+                    <div class="form-group">
+                        <input type="text" name="name" class="form-control" id="name" placeholder="Your Name" required>
+                    </div>
+                    <div class="form-group">
+                        <!-- Formspree needs the email field named 'email' -->
+                        <input type="email" class="form-control" name="email" id="email" placeholder="Your Email" required>
+                    </div>
+                    <div class="form-group">
+                        <input type="text" class="form-control" name="subject" id="subject" placeholder="Subject" required>
+                    </div>
+                    <div class="form-group">
+                        <textarea class="form-control" name="message" rows="5" placeholder="Message" required></textarea>
+                    </div>
+
+                    <!-- Optional: redirect to a thank-you page you create on GitHub Pages -->
+                    <input type="hidden" name="_next" value="https://YOUR-DOMAIN/thanks.html">
+                    <!-- Optional: set a subject line that will appear in your inbox -->
+                    <input type="hidden" name="_subject" value="[Website Contact] New message">
+
+                    <div id="sendmessage" style="display:none">Your message has been sent. Thank you!</div>
+                    <div id="errormessage" style="display:none"></div>
+
+                    <div class="text-center"><button type="submit">Send Message</button></div>
+                </form>
+            </div>
 		</div>
 	</div>
 </section>
@@ -395,6 +400,40 @@
         </div> -->
     </div>
 </footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const form = document.querySelector('.contactForm');
+  if (!form) return;
+
+  form.addEventListener('submit', async function (e) {
+    e.preventDefault();
+
+    // Honeypot check
+    if (form.website && form.website.value) return;
+
+    const sendEl = document.getElementById('sendmessage');
+    const errEl  = document.getElementById('errormessage');
+    if (sendEl) sendEl.style.display = 'none';
+    if (errEl)  errEl.style.display  = 'none';
+
+    const data = new FormData(form);
+    try {
+      const res = await fetch(form.action, { method: 'POST', body: data, headers: { 'Accept': 'application/json' } });
+      if (res.ok) {
+        if (sendEl) { sendEl.textContent = 'Your message has been sent. Thank you!'; sendEl.style.display = 'block'; }
+        form.reset();
+      } else {
+        const j = await res.json().catch(() => ({}));
+        const msg = (j && j.errors && j.errors[0] && j.errors[0].message) || 'Sorry, something went wrong.';
+        if (errEl) { errEl.textContent = msg; errEl.style.display = 'block'; }
+      }
+    } catch (err) {
+      if (errEl) { errEl.textContent = 'Network error. Please try again later.'; errEl.style.display = 'block'; }
+    }
+  });
+});
+</script>
 
 
 <script type="text/javascript">
